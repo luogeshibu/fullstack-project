@@ -45,7 +45,7 @@ demoproject/
 
 ```bash
 cd fastapi_tutorial
-pip install "fastapi[standard]"
+pip install "fastapi[standard]" pymongo
 ````
 
 ### Run API server:
@@ -133,7 +133,7 @@ MIT License
 ## 👤 Author
 
 Your Name
-GitHub: [https://github.com/yourname](https://github.com/yourname)
+GitHub: [https://github.com/luogeshibu](https://github.com/luogeshibu)
 
 ---
 
