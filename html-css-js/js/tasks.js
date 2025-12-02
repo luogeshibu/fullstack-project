@@ -1,145 +1,129 @@
+const API_BASE = "http://192.168.88.88:8000/tasks/";
+let editingTaskId = null;
 
-// Function to fetch and display tasks
+// Fetch tasks
 function fetchTasks() {
-    fetch('http://192.168.88.88:8000/tasks/')
+    fetch(API_BASE)
         .then(response => response.json())
         .then(data => {
             const taskList = document.getElementById("taskList");
-            taskList.innerHTML = ""; // Clear existing tasks
+            taskList.innerHTML = "";
 
-            data.forEach(task => {
-                addTaskToList(task);
-                //console.log(task)
-            });
+            data.forEach(task => addTaskToList(task));
         })
-        .catch(error => console.error('Error fetching tasks:', error));
+        .catch(error => console.error("Error fetching tasks:", error));
 }
 
-// Function to add a task to the task list
+// Add task to list
 function addTaskToList(task) {
     let listItem = document.createElement("li");
     listItem.className = "task-item";
-    
-    let taskDetails = `
+
+    listItem.innerHTML = `
         <strong>${task.taskName}</strong><br>
         Description: ${task.taskDescription}<br>
         Due Date: ${task.taskDueDate}<br>
         Status: ${task.taskStatus}<br>
-        <button class="delete-btn" onclick="deleteTask('${task._id}', this)">Delete</button>
-        <button class="hide-btn" onclick="hideTask(this)">Hide</button>
+
+        <button onclick="openEditModal('${task._id}', '${task.taskName}', '${task.taskDescription}', 
+                '${task.taskStatus}', '${task.taskDueDate}')">
+            Edit
+        </button>
+
+        <button onclick="deleteTask('${task._id}', this)">Delete</button>
+        <button onclick="hideTask(this)">Hide</button>
     `;
-    
-    listItem.innerHTML = taskDetails;
-    
+
     document.getElementById("taskList").appendChild(listItem);
 }
 
-// Function to add a new task
+// Add new task
 document.getElementById("taskForm").addEventListener("submit", function(event) {
     event.preventDefault();
 
-    let taskName = document.getElementById("taskName").value;
-    let taskDescription = document.getElementById("taskDescription").value;
-    let taskStatus = document.getElementById("taskStatus").value;
-    let taskDueDate = document.getElementById("taskDueDate").value;
-
     let task = {
-        taskName: taskName,
-        taskDescription: taskDescription,
-        taskStatus: taskStatus,
-        taskDueDate: taskDueDate
+        taskName: document.getElementById("taskName").value,
+        taskDescription: document.getElementById("taskDescription").value,
+        taskStatus: document.getElementById("taskStatus").value,
+        taskDueDate: document.getElementById("taskDueDate").value
     };
 
-    fetch('http://192.168.88.88:8000/tasks/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+    fetch(API_BASE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(task)
     })
-    .then(response => response.json())
-    .then(data => {
-        addTaskToList(data);
-        document.getElementById("taskForm").reset(); // Clear form fields
+    .then(() => {
+        document.getElementById("taskForm").reset();
+        fetchTasks();
     })
-    .catch(error => console.error('Error adding task:', error));
+    .catch(error => console.error("Error adding task:", error));
 });
 
-// Fetch tasks on page load
-// fetchTasks();
-
-// Function to update machines periodically
-function updateMachinesPeriodically(interval) {
-    // Fetch and display machines immediately
-    fetchTasks();
-
-    // Set interval to fetch and display machines every 'interval' milliseconds
-    setInterval(fetchTasks, interval);
-}
-
-// Call the function to update machines every 5 seconds (5000 milliseconds)
-updateMachinesPeriodically(5000); // Adjust the interval as needed
-
-
-
-// Function to delete a task
+// Delete task
 function deleteTask(taskId, buttonElement) {
-    fetch(`http://192.168.88.88:8000/tasks/${taskId}`, {
-        method: 'DELETE'
-    })
-    .then(response => {
-        if (response.ok) {
-            let listItem = buttonElement.closest(".task-item");
-            listItem.remove();
-        } else {
-            console.error('Error deleting task:', response.statusText);
-        }
-    })
-    .catch(error => console.error('Error deleting task:', error));
+    fetch(API_BASE + taskId, { method: "DELETE" })
+        .then(response => {
+            if (response.ok) {
+                buttonElement.closest(".task-item").remove();
+            }
+        })
+        .catch(error => console.error("Error deleting task:", error));
 }
 
-// Function to hide a task
+// Hide task
 function hideTask(buttonElement) {
     let listItem = buttonElement.closest(".task-item");
-    listItem.classList.add("completed");
-    buttonElement.disabled = true;
+
+    // 获取标题
+    const title = listItem.querySelector("strong").innerText;
+
+    // 只显示标题
+    listItem.innerHTML = `
+        <strong>${title}</strong><br>
+        <span style="color: gray; font-size: 12px;">(Hidden)</span>
+    `;
 }
 
 
+// ====== Edit Task ======
 
-// 
+function openEditModal(id, name, desc, status, dueDate) {
+    editingTaskId = id;
 
-// Function to add a new task
-// document.getElementById("taskForm").addEventListener("submit", function(event) {
-//     event.preventDefault();
+    document.getElementById("editTaskName").value = name;
+    document.getElementById("editTaskDescription").value = desc;
+    document.getElementById("editTaskStatus").value = status;
+    document.getElementById("editTaskDueDate").value = dueDate;
 
-//     let taskName = document.getElementById("taskName").value;
-//     let taskDescription = document.getElementById("taskDescription").value;
-//     let taskStatus = document.getElementById("taskStatus").value;
-//     let taskDueDate = document.getElementById("taskDueDate").value;
+    document.getElementById("editModal").style.display = "flex";
+}
 
-//     let task = {
-//         taskName: taskName,
-//         taskDescription: taskDescription,
-//         taskStatus: taskStatus,
-//         taskDueDate: taskDueDate
-//     };
+function closeEditModal() {
+    document.getElementById("editModal").style.display = "none";
+}
 
-//     fetch('http://192.168.56.88:8000/tasks/', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify(task)
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         alert('Task added successfully');
-//         document.getElementById("taskForm").reset();
-//     })
-//     .catch(error => console.error('Error adding task:', error));
-// });
+// Save edited task (PUT)
+function saveEditedTask() {
+    const updatedTask = {
+        taskName: document.getElementById("editTaskName").value,
+        taskDescription: document.getElementById("editTaskDescription").value,
+        taskStatus: document.getElementById("editTaskStatus").value,
+        taskDueDate: document.getElementById("editTaskDueDate").value
+    };
 
+    fetch(API_BASE + editingTaskId, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedTask)
+    })
+    .then(() => {
+        closeEditModal();
+        fetchTasks();
+    })
+    .catch(error => console.error("Error updating task:", error));
+}
 
-
-
+// Auto fetch tasks every 5 seconds
+setInterval(fetchTasks, 5000);
+fetchTasks();

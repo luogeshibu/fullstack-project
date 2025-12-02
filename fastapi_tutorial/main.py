@@ -25,15 +25,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
+# Pydantic model for Task
 class Tasks(BaseModel):
     taskName: str
     taskDescription: str
     taskStatus: str
     taskDueDate: str
-
-
 
 
 # Helper function to convert MongoDB documents to JSON-compatible dicts
@@ -44,9 +41,6 @@ def convert_to_json_compatible(documents: list[dict]) -> list[dict]:
         if '_id' in doc and isinstance(doc['_id'], ObjectId):
             doc['_id'] = str(doc['_id'])
     return documents
-
-
-
 
 
 @app.get("/tasks/")
@@ -75,6 +69,39 @@ async def add_task(task: Tasks):
     except Exception as e:
         print("An error occurred while inserting the document:", e)
         return {"success": False, "message": "An error occurred while inserting the document."}
+
+@app.put("/tasks/{task_id}")
+async def update_task(task_id: str, updated_task: Tasks):
+    collection = db["tasks"]
+
+    try:
+        # 将 Pydantic 模型转成 dict
+        update_data = updated_task.model_dump()
+
+        # 执行更新操作
+        result = collection.update_one(
+            {"_id": ObjectId(task_id)},
+            {"$set": update_data}
+        )
+
+        # 如果 task_id 不存在
+        if result.matched_count == 0:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Task with ID {task_id} not found"
+            )
+
+        return {
+            "success": True,
+            "message": f"Task {task_id} updated successfully",
+            "updatedFields": update_data
+        }
+
+    except Exception as e:
+        print("Error updating task:", e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 
 @app.delete("/tasks/{task_id}")
 async def delete_task(task_id: str):

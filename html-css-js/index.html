@@ -30,6 +30,32 @@
             <button type="submit">Add Task</button>
         </form>
     </div>
+    <!-- Edit Task Modal -->
+    <div id="editModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h2>Edit Task</h2>
+
+        <label>Task Name:</label>
+        <input id="editTaskName" type="text"><br><br>
+
+        <label>Description:</label>
+        <textarea id="editTaskDescription" rows="3"></textarea><br><br>
+
+        <label>Status:</label>
+        <select id="editTaskStatus">
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+        </select><br><br>
+
+        <label>Due Date:</label>
+        <input id="editTaskDueDate" type="date"><br><br>
+
+        <button onclick="saveEditedTask()">Save</button>
+        <button onclick="closeEditModal()">Cancel</button>
+    </div>
+    </div>
+
     <div class="container">
         <h2>Tasks List &#128209;</h2>
         <ul id="taskList">
@@ -37,7 +63,7 @@
         </ul>
     </div>
     <div class="container">
-        email: <input type="text" id="email" name="email" required><br><br>
+        <!-- place holder -->
     </div>
     <div>
         <footer>
