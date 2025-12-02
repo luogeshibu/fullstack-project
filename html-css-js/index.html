@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="images/nari.png">
+    <link rel="stylesheet" href="css/index.css">
+    <title>Task Tracker</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Task Tracker &#128640;</h1>
+        <form id="taskForm">
+            <label for="taskName">Task Name:</label><br>
+            <input type="text" id="taskName" name="taskName" required><br><br>
+            
+            <label for="taskDescription">Description:</label><br>
+            <textarea id="taskDescription" name="taskDescription" rows="4" cols="50"></textarea><br><br>
+            
+            <label for="taskStatus">Status:</label><br>
+            <select id="taskStatus" name="taskStatus" required>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+            </select><br><br>
+
+            <label for="taskDueDate">Due Date:</label><br>
+            <input type="date" id="taskDueDate" name="taskDueDate" required><br><br>
+
+            <button type="submit">Add Task</button>
+        </form>
+    </div>
+    <div class="container">
+        <h2>Tasks List &#128209;</h2>
+        <ul id="taskList">
+            <!-- Tasks will be inserted here -->
+        </ul>
+    </div>
+    <div class="container">
+        email: <input type="text" id="email" name="email" required><br><br>
+    </div>
+    <div>
+        <footer>
+            <p>&copy; 2026 NARI TEAM. All rights reserved.</p>
+        </footer>
+    </div>
+    <script src="js/tasks.js"></script>
+</body>
+</html>
