@@ -9,7 +9,7 @@ This repository is designed as a complete example for learning and building full
 
 ```
 
-demoproject/
+fullstack-project/
 ├─ fastapi_tutorial/          # Backend (FastAPI API service)
 │  └─ main.py
 │
