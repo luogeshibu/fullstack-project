@@ -1,0 +1,9 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 可选（建议一起加）
+.env
+venv/
