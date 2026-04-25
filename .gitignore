@@ -1,9 +1,17 @@
 # Python
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
 
-# 可选（建议一起加）
+# Node / 前端（你有 html-js）
+node_modules/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# 环境变量
 .env
-venv/
