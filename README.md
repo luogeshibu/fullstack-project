@@ -1,60 +1,80 @@
-# Fullstack Project
+# 🚀 Fullstack Task Tracker (FastAPI + MongoDB + Kafka)
 
-A fullstack web application including frontend (HTML/CSS/JS), backend (FastAPI), and database (MongoDB).  
-This repository is designed as a complete example for learning and building fullstack applications.
+A fullstack web application demonstrating a simple **event-driven architecture** using FastAPI, MongoDB, and Apache Kafka.
+
+---
+
+## 📌 Project Overview
+
+This project is designed for learning and practicing:
+
+- Fullstack development
+- Event-driven architecture
+- Kafka integration
+
+---
+
+## 🧠 Architecture
+
+Frontend (HTML/JS)
+        ↓
+FastAPI (CRUD API)
+        ↓
+MongoDB (Data storage)
+        ↓
+Kafka Producer (Send events)
+        ↓
+Kafka Topic (task-events)
+        ↓
+Kafka Consumer (Process events)
 
 ---
 
 ## 📁 Project Structure
 
 ```
-
 fullstack-project/
-├─ fastapi_tutorial/          # Backend (FastAPI API service)
-│  └─ main.py
+├─ fastapi-tutorial/
+│  ├─ main.py
+│  ├─ kafka_producer.py
+│  ├─ kafka_consumer.py
 │
-├─ html-css-js/               # Frontend (static website)
+├─ html-css-js/
 │  ├─ index.html
 │  ├─ css/
 │  ├─ js/
 │  └─ images/
 │
-├─ mongodb/                   # MongoDB service (Docker Compose)
-│  ├─ compose.yml
-│  └─ mongodb_note.md
+├─ kafka/
+│  └─ compose.yml
 │
-└─ README.md                  # Main documentation
-
-````
+├─ mongodb/
+│  └─ compose.yml
+│
+└─ README.md
+```
 
 ---
 
 ## 🚀 Features
 
-- ✔️ Frontend (HTML + CSS + JavaScript)
-- ✔️ Backend API with FastAPI
-- ✔️ MongoDB database (Docker)
-- ✔️ Clean and modular project structure
-- ✔️ Easy to start and extend
+- ✔️ Task CRUD system
+- ✔️ MongoDB persistence
+- ✔️ Kafka event streaming
+- ✔️ Decoupled architecture
+- ✔️ Real-time event logging (via consumer)
 
 ---
 
-## 🧩 Backend Setup (FastAPI)
-
-### Install dependencies:
+## 🧩 Backend Setup
 
 ```bash
-cd fastapi_tutorial
-pip install "fastapi[standard]" pymongo
-````
-
-### Run API server:
-
-```bash
+cd fastapi-tutorial
+pip install fastapi uvicorn pymongo kafka-python
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### API documentation:
+Swagger:
 
 ```
 http://127.0.0.1:8000/docs
@@ -62,82 +82,97 @@ http://127.0.0.1:8000/docs
 
 ---
 
-## 🖥️ Frontend Setup
-
-The frontend is fully static.
-Simply open:
-
-```
-html-css-js/index.html
-```
-
-Or run a simple local web server:
-
-```bash
-cd html-css-js
-python3 -m http.server 9000
-```
-
-Visit:
-
-```
-http://localhost:9000
-```
-
----
-
-## 🗄️ Database Setup (MongoDB)
-
-MongoDB runs via Docker Compose.
+## 🗄️ MongoDB Setup
 
 ```bash
 cd mongodb
 docker compose up -d
 ```
 
-MongoDB will be available on:
-
-```
-localhost:27017
-```
-
 ---
 
-## 🧪 Testing the API
-
-Example:
+## 🧵 Kafka Setup
 
 ```bash
-curl http://127.0.0.1:8000/
+cd kafka
+docker compose up -d
 ```
 
-Or use the built-in Swagger UI (`/docs`).
+Kafka UI:
+
+```
+http://<your-ip>:8090
+```
 
 ---
 
-## 📦 Technologies Used
+## ⚡ Kafka Usage
 
-* FastAPI (Python)
-* HTML / CSS / JavaScript
-* MongoDB
-* Docker / Docker Compose
+### Topic
+
+```
+task-events
+```
+
+### Event Example
+
+```json
+{
+  "eventType": "TASK_CREATED",
+  "taskId": "xxx",
+  "taskName": "install docker",
+  "taskStatus": "Pending",
+  "timestamp": "2026-04-25T10:00:00"
+}
+```
+
+### Event Types
+
+- TASK_CREATED
+- TASK_UPDATED
+- TASK_DELETED
 
 ---
 
-## 📄 License
+## 🧪 Run Kafka Consumer
 
-MIT License
+```bash
+cd fastapi-tutorial
+python kafka_consumer.py
+```
+
+Output:
+
+```
+Received task event: {...}
+```
 
 ---
 
-## 👤 Author
+## 🔥 Key Kafka Concepts
 
-Your Name
-GitHub: [https://github.com/luogeshibu](https://github.com/luogeshibu)
+- Producer → Sends events
+- Topic → Event stream
+- Consumer → Processes events
+- Decoupling → Independent systems
 
 ---
 
-## ⭐ If this project is helpful, please give it a star!
+## 📈 Future Improvements
 
+- Multi-consumer architecture
+- Kafka partitions
+- Real-time dashboard
+- AI / analytics integration
+- IoT data streaming
 
+---
 
+## 👨‍💻 Author
+
+Shibu  
+GitHub: https://github.com/luogeshibu
+
+---
+
+## ⭐ Star this repo if helpful!

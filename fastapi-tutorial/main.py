@@ -3,6 +3,8 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import pymongo
 from bson import ObjectId
+from datetime import datetime
+from kafka_producer import send_task_event
 
 app = FastAPI()
 
@@ -55,20 +57,53 @@ async def get_tasks():
     return tasks
 
 
+# @app.post("/tasks/")
+# async def add_task(task: Tasks):
+#     # Insert the item into the database
+
+#     # Access the collection
+#     collection = db["tasks"]
+#     # Insert the document into the collection
+#     try:
+#         result = collection.insert_one(task.model_dump())
+#         print(f"Document inserted with _id: {result.inserted_id}")
+#         return {"success": True, "message": f"Document inserted with _id: {result.inserted_id}"}
+#     except Exception as e:
+#         print("An error occurred while inserting the document:", e)
+#         return {"success": False, "message": "An error occurred while inserting the document."}
+
 @app.post("/tasks/")
 async def add_task(task: Tasks):
-    # Insert the item into the database
-
-    # Access the collection
     collection = db["tasks"]
-    # Insert the document into the collection
+
     try:
         result = collection.insert_one(task.model_dump())
-        print(f"Document inserted with _id: {result.inserted_id}")
-        return {"success": True, "message": f"Document inserted with _id: {result.inserted_id}"}
+
+        event = {
+            "eventType": "TASK_CREATED",
+            "taskId": str(result.inserted_id),
+            "taskName": task.taskName,
+            "taskStatus": task.taskStatus,
+            "timestamp": datetime.now().isoformat()
+        }
+
+        print(">>> I AM NEW MAIN.PY, START SEND KAFKA")
+        print(event)
+
+        send_task_event(event)
+
+        return {
+            "success": True,
+            "message": f"Document inserted with _id: {result.inserted_id}"
+        }
+
     except Exception as e:
-        print("An error occurred while inserting the document:", e)
-        return {"success": False, "message": "An error occurred while inserting the document."}
+        import traceback
+        traceback.print_exc()
+        return {
+            "success": False,
+            "message": str(e)
+        }
 
 @app.put("/tasks/{task_id}")
 async def update_task(task_id: str, updated_task: Tasks):
