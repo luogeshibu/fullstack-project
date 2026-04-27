@@ -71,7 +71,6 @@ async def get_tasks():
 #     except Exception as e:
 #         print("An error occurred while inserting the document:", e)
 #         return {"success": False, "message": "An error occurred while inserting the document."}
-
 @app.post("/tasks/")
 async def add_task(task: Tasks):
     collection = db["tasks"]
@@ -83,12 +82,11 @@ async def add_task(task: Tasks):
             "eventType": "TASK_CREATED",
             "taskId": str(result.inserted_id),
             "taskName": task.taskName,
+            "taskDescription": task.taskDescription,
             "taskStatus": task.taskStatus,
+            "taskDueDate": task.taskDueDate,
             "timestamp": datetime.now().isoformat()
         }
-
-        print(">>> I AM NEW MAIN.PY, START SEND KAFKA")
-        print(event)
 
         send_task_event(event)
 
@@ -105,26 +103,41 @@ async def add_task(task: Tasks):
             "message": str(e)
         }
 
+
 @app.put("/tasks/{task_id}")
 async def update_task(task_id: str, updated_task: Tasks):
     collection = db["tasks"]
 
     try:
-        # 将 Pydantic 模型转成 dict
+        old_task = collection.find_one({"_id": ObjectId(task_id)})
+
+        if not old_task:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Task with ID {task_id} not found"
+            )
+
         update_data = updated_task.model_dump()
 
-        # 执行更新操作
         result = collection.update_one(
             {"_id": ObjectId(task_id)},
             {"$set": update_data}
         )
 
-        # 如果 task_id 不存在
-        if result.matched_count == 0:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Task with ID {task_id} not found"
-            )
+        event = {
+            "eventType": "TASK_UPDATED",
+            "taskId": task_id,
+            "oldTask": {
+                "taskName": old_task.get("taskName"),
+                "taskDescription": old_task.get("taskDescription"),
+                "taskStatus": old_task.get("taskStatus"),
+                "taskDueDate": old_task.get("taskDueDate")
+            },
+            "newTask": update_data,
+            "timestamp": datetime.now().isoformat()
+        }
+
+        send_task_event(event)
 
         return {
             "success": True,
@@ -133,23 +146,47 @@ async def update_task(task_id: str, updated_task: Tasks):
         }
 
     except Exception as e:
-        print("Error updating task:", e)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.delete("/tasks/{task_id}")
 async def delete_task(task_id: str):
-    # Access the collection
     collection = db["tasks"]
-    # Delete the document from the collection
+
     try:
+        task = collection.find_one({"_id": ObjectId(task_id)})
+
+        if not task:
+            raise HTTPException(status_code=404, detail="Task not found")
+
         result = collection.delete_one({"_id": ObjectId(task_id)})
-        print(f"Document deleted with _id: {task_id}")
-        return {"success": True, "message": f"Document deleted with _id: {task_id}"}
+
+        event = {
+            "eventType": "TASK_DELETED",
+            "taskId": task_id,
+            "taskName": task.get("taskName"),
+            "taskDescription": task.get("taskDescription"),
+            "taskStatus": task.get("taskStatus"),
+            "taskDueDate": task.get("taskDueDate"),
+            "timestamp": datetime.now().isoformat()
+        }
+
+        send_task_event(event)
+
+        return {
+            "success": True,
+            "message": f"Document deleted with _id: {task_id}"
+        }
+
     except Exception as e:
-        print("An error occurred while deleting the document:", e)
-        return {"success": False, "message": "An error occurred while deleting the document."}
+        import traceback
+        traceback.print_exc()
+        return {
+            "success": False,
+            "message": str(e)
+        }
 
 
 
